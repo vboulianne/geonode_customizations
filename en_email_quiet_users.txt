@@ -3,7 +3,7 @@ Hello {},
 you have not logged to the NEEC Geoportal for more than 180 days.
 
 
-If you wish to preserve your access, you have until {} to login to the NEEC Geoportal with your username and password (https://geoportal.ueee.ca/account/login).
+If you wish to preserve your access, you have 30 days to login to the NEEC Geoportal with your username and password (https://geoportal.ueee.ca/account/login).
 
 
 

@@ -23,7 +23,6 @@ for user in all_users:
         email_subject = "Deactivation of NECC geoportal account in 30 days if there is no login"
 
     email_body = email_int.format(user.get_short_name())
-
     user.email_user(email_subject, email_body, "admin@geoportal.ueee.ca")
     
     
