@@ -11,19 +11,19 @@ now = datetime.now().timestamp()
 gn_action = ""
 
 #path, filename = os.path.split(os.path.abspath(__file__))
-path = "/opt/geonode_custom/neec_geoportal/"
+path = "/opt/geonode_custom/neec_geoportal/scripts/quiet_users/"
 
 
 class Command(BaseCommand):
     help = 'Send users a reminded to log once in a while'
 
     def handle(self, *args, **options):
-        notified_user_emailbody = "\n\nCOURRIEL ENVOYÉ\:\n\n"
-        deactivated_user_emailbody = "\n\nACCÈS DÉSACTIVÉ\:\n\n"
+        notified_user_emailbody = "\n\nCOURRIEL ENVOYÉ:\n\n"
+        deactivated_user_emailbody = "\n\nACCÈS DÉSACTIVÉ:\n\n"
         notified_user_nb = 0
         deactivated_user_nb = 0
-        #all_users = User.objects.filter(is_active=True)
-        all_users = User.objects.filter(username="bouliannev") # Test function 
+        all_users = User.objects.filter(is_active=True)
+        #all_users = User.objects.filter(username="bouliannev") # Test function 
 
 
         with open(path + 'saved_state.json', 'r') as fich:
@@ -46,7 +46,7 @@ class Command(BaseCommand):
 
                 timelapse = (now - user.date_joined.timestamp())/86400
 
-            if notification_timelapse != None:
+            if notified_user_list.get(user.username, None) != None:
                 notification_timelapse = (now - notified_user_list.get(user.username, None))/86400
             else:
                 notification_timelapse = -1
@@ -63,7 +63,8 @@ class Command(BaseCommand):
                     notified_user_list.pop(user.username, None)
                     #gn_action = "Inactivated"
 
-                else:
+
+                elif notification_timelapse == -1:
                     
                     if user.language == "fr":
                             with open(path + 'fr_email_quiet_users.txt','r', encoding='utf8') as f:
@@ -81,6 +82,9 @@ class Command(BaseCommand):
                     notified_user_list[user.username] = now
                     notified_user_nb += 1
                     #gn_action = "Email sent"
+                else:
+                    pass # Do nothing. The clock is ticking
+                
 
             else:
                 notified_user_list.pop(user.username, None) # Remove 180 notification flag
@@ -88,8 +92,8 @@ class Command(BaseCommand):
 
             
         # Envoyer courriel à l'administrateur de geoportal
-        notified_user_emailbody += "\n\nTotal: " + notified_user_nb
-        deactivated_user_emailbody += "\n\nTotal:" + deactivated_user_nb
+        notified_user_emailbody += "\n\nTotal: " + str(notified_user_nb)
+        deactivated_user_emailbody += "\n\nTotal: " + str(deactivated_user_nb)
         admin_email_body = "Actions entreprises par le script de vérification des usagers ne s'étant pas connectés depuis plus de 180 jours\n\n" + notified_user_emailbody + deactivated_user_emailbody
         admin_email_subject = "Rapport d'action sur le statuts des usagers sans connection depuis 180 jours"
         send_mail(admin_email_subject, admin_email_body, "geoportal@ueee.ca", ["vincent.boulianne@ec.gc.ca"])
