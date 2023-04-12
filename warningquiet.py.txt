@@ -23,7 +23,7 @@ class Command(BaseCommand):
         notified_user_nb = 0
         deactivated_user_nb = 0
         all_users = User.objects.filter(is_active=True)
-        #all_users = User.objects.filter(username="bouliannev") # Test function 
+
 
         # following read saved_state.json where a pair username/timestamp has been stored.
         
@@ -46,6 +46,7 @@ class Command(BaseCommand):
                 
 
             if notified_user_list.get(user.username, None) != None:
+
                 notification_timelapse = (now - notified_user_list.get(user.username, None))/86400 # username/datetimestamp was found in save_state.json
             else:
                 notification_timelapse = -1 # username/datetimestamp was NOT found in save_state.json; will trigger sending of email
@@ -55,8 +56,8 @@ class Command(BaseCommand):
 
                 if  notification_timelapse > 30:
                 #============== Deactivate user ================
-                # TEST   user.is_active = False
-                # TEST   user.save
+                user.is_active = False
+                user.save
                     deactivated_user_emailbody += "\nL'accès de" + user.username + " a été désactivé.\n" 
                     deactivated_user_nb += 1
                     notified_user_list.pop(user.username, None)
@@ -96,7 +97,7 @@ class Command(BaseCommand):
         notified_user_emailbody += "\n\nTotal: " + str(notified_user_nb)
         deactivated_user_emailbody += "\n\nTotal: " + str(deactivated_user_nb)
         admin_email_body = "Actions entreprises par le script de vérification des usagers ne s'étant pas connectés depuis plus de 180 jours\n\n" + notified_user_emailbody + deactivated_user_emailbody
-        admin_email_subject = "Rapport d'action sur le statut des usagers sans connection depuis 180 jours"
+        admin_email_subject = "Rapport d'action sur le statuts des usagers sans connection depuis 180 jours"
         send_mail(admin_email_subject, admin_email_body, "geoportal@ueee.ca", ["vincent.boulianne@ec.gc.ca"])
 
 
